@@ -1,0 +1,55 @@
+--- a/public/app.js
++++ b/public/app.js
+@@ -38,9 +38,20 @@
+ 
+ function render() {
+   renderTop();
++  // Keep drafts only for candidates whose saved revision has not changed.
++  // A successful save advances that card's revision; unrelated drafts survive.
++  const drafts = new Map([...elements.list.querySelectorAll('.candidate-card')]
++    .filter(card => dirtyCandidates.has(card.dataset.id))
++    .map(card => [card.dataset.id, {
++      revision: Number(card.dataset.revision),
++      fields: Object.fromEntries([...card.querySelectorAll('input')].map(input => [input.name, input.value]))
++    }]));
+   dirtyCandidates.clear();
+   elements.list.replaceChildren();
+-  state.candidates.forEach((candidate, index) => elements.list.append(candidateCard(candidate, index)));
++  state.candidates.forEach((candidate, index) => {
++    const draft = drafts.get(candidate.id);
++    elements.list.append(candidateCard(candidate, index, draft?.revision === candidate.revision ? draft.fields : null));
++  });
+   const approved = state.candidates.filter((candidate) => candidate.approved).length;
+   elements.summary.textContent = state.candidates.length ? `${approved} approved · ${state.candidates.length - approved} awaiting review` : 'No candidates';
+   elements.empty.hidden = state.candidates.length > 0;
+@@ -57,8 +68,10 @@
+   renderRejected();
+ }
+ 
+-function candidateCard(candidate, index) {
++function candidateCard(candidate, index, draft = null) {
+   const card = node('article', 'candidate-card');
++  card.dataset.id = candidate.id;
++  card.dataset.revision = candidate.revision;
+   card.setAttribute('aria-labelledby', `candidate-title-${candidate.id}`);
+   const head = node('div', 'candidate-head');
+   const number = node('span', 'candidate-number', `Candidate ${String(index + 1).padStart(2, '0')}`);
+@@ -77,6 +90,10 @@
+     chip.classList.toggle('approved', !changed && candidate.approved);
+   };
+   [action.input, owner.input, due.input].forEach((input) => input.addEventListener('input', trackEdit));
++  if (draft) {
++    [action.input, owner.input, due.input].forEach(input => { input.value = draft[input.name]; });
++    trackEdit();
++  }
+   fields.append(action.wrap, owner.wrap, due.wrap);
+   const line = state.notes.lines.find((item) => item.id === candidate.sourceLineId);
+   const source = node('aside', 'source-box');
+@@ -89,7 +106,6 @@
+   const buttons = node('div');
+   const save = button('Save edits', 'secondary');
+   save.addEventListener('click', async () => {
+-    if ([...dirtyCandidates].some(id => id !== candidate.id) || hasUnsavedNotes()) { showStatus('Save other unsaved edits first.', true); return; }
+     await mutate(`/api/candidates/${candidate.id}`, 'PUT', { action: action.input.value, owner: owner.input.value || null, dueDate: due.input.value || null, sourceVersion: state.notes.version, candidateRevision: candidate.revision }, 'Edits saved. Approval is cleared whenever a candidate changes.');
+   });
+   const approve = button(candidate.approved ? 'Clear approval' : 'Approve', candidate.approved ? 'danger' : 'primary');

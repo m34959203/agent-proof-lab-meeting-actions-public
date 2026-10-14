@@ -1,0 +1,7 @@
+Project Lantern weekly review — 2026-10-10
+Maya will send the revised accessibility checklist by 2026-10-14.
+The launch date still depends on vendor approval.
+Jordan agreed to verify the staging rollback steps; no deadline was set.
+Someone should revisit the dashboard labels next week.
+Decision: keep the current onboarding copy for this release.
+Maya also needs to send the accessibility checklist to the QA lead by 2026-10-14.

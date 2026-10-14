@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Meeting Action Board</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#notes"><span class="brand-mark" aria-hidden="true">MA</span><span>Meeting Action Board</span></a>
+    <div class="local-badge"><span aria-hidden="true"></span>Local review workspace</div>
+  </header>
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Evidence-first task review</p>
+        <h1 id="page-title">Turn meeting notes into<br><em>reviewed actions.</em></h1>
+        <p class="intro">The local model proposes. You inspect the original line, correct each field, and decide what is ready to export.</p>
+      </div>
+      <aside class="privacy-note" aria-label="Privacy and review note">
+        <strong>Nothing leaves this computer</strong>
+        <span>Inference runs through the configured loopback provider. A matching quote supports review—it does not prove a task is correct.</span>
+      </aside>
+    </section>
+
+    <section id="notes" class="panel notes-panel" aria-labelledby="notes-title">
+      <div class="section-heading">
+        <div><p class="step">01 · Source</p><h2 id="notes-title">Meeting notes</h2></div>
+        <span id="version" class="version">Version 0 · not saved</span>
+      </div>
+      <label class="sr-only" for="notes-input">Meeting notes</label>
+      <textarea id="notes-input" maxlength="12000" rows="10" placeholder="Paste non-sensitive meeting notes here…" aria-describedby="notes-help notes-count"></textarea>
+      <div class="notes-meta">
+        <span id="notes-help">Up to 12,000 characters and 200 lines. Saved source lines receive stable IDs.</span>
+        <span id="notes-count">0 / 12,000 · 1 / 200 lines</span>
+      </div>
+      <div class="actions-row">
+        <button id="save" class="button secondary" type="button">Save new version</button>
+        <button id="extract" class="button primary" type="button">Extract candidates <span aria-hidden="true">→</span></button>
+      </div>
+    </section>
+
+    <div id="status" class="status" role="status" aria-live="polite" hidden></div>
+
+    <section class="review-section" aria-labelledby="review-title">
+      <div class="section-heading">
+        <div><p class="step">02 · Review</p><h2 id="review-title">Candidate actions</h2></div>
+        <div id="summary" class="review-summary">No candidates</div>
+      </div>
+      <div id="candidate-list" class="candidate-list"></div>
+      <div id="empty" class="empty-state">
+        <span class="empty-icon" aria-hidden="true">↳</span>
+        <h3>No candidates yet</h3>
+        <p>Save your meeting notes, then extract candidate actions for review.</p>
+      </div>
+      <div id="rejected" class="rejected-list" hidden></div>
+    </section>
+
+    <section class="panel export-panel" aria-labelledby="export-title">
+      <div><p class="step">03 · Export</p><h2 id="export-title">Reviewed list</h2><p>Only approved candidates from the current source version are included.</p></div>
+      <div class="export-actions">
+        <button type="button" class="button secondary export" data-format="json">Export JSON</button>
+        <button type="button" class="button primary export" data-format="md">Export Markdown</button>
+      </div>
+    </section>
+  </main>
+  <footer>Single-user loopback tool · Not authentication or a hosted service</footer>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

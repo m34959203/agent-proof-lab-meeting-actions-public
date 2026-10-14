@@ -1,0 +1,27 @@
+--- a/src/validation.js
++++ b/src/validation.js
+@@ -19,7 +19,7 @@
+ export function validateNotes(text) {
+   if (typeof text !== 'string') throw new InputError('Notes must be text.');
+   if (!text.trim()) throw new InputError('Enter meeting notes before saving.', 422, 'empty_notes');
+-  if (text.length > MAX_NOTES_CHARS) throw new InputError(`Notes exceed ${MAX_NOTES_CHARS.toLocaleString()} characters.`, 413, 'notes_too_large');
++  if (text.length > MAX_NOTES_CHARS) throw new InputError(`Notes exceed ${MAX_NOTES_CHARS.toLocaleString('en-US')} characters.`, 413, 'notes_too_large');
+   const lines = makeLines(text);
+   if (lines.length > MAX_NOTE_LINES) throw new InputError(`Notes exceed ${MAX_NOTE_LINES} lines.`, 413, 'too_many_lines');
+   return lines;
+--- a/test/app.test.js
++++ b/test/app.test.js
+@@ -51,7 +51,12 @@
+   assert.deepEqual(validateModelPayload({ tasks: [] }, notes), { accepted: [], rejected: [] });
+   assert.throws(() => validateModelPayload({ nope: [] }, notes), /tasks array/);
+   assert.throws(() => validateModelPayload({ tasks: Array.from({ length: 31 }, () => ({})) }, notes), /more than 30/);
+-  assert.throws(() => validateNotes('x'.repeat(12_001)), /12,000/);
++  assert.equal(validateNotes('x'.repeat(12_000))[0].text.length, 12_000);
++  assert.throws(() => validateNotes('x'.repeat(12_001)), {
++    message: 'Notes exceed 12,000 characters.',
++    status: 413,
++    code: 'notes_too_large'
++  });
+   assert.throws(() => validateNotes(Array.from({ length: 201 }, () => 'line').join('\n')), /200 lines/);
+ });
+ 

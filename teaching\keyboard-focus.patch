@@ -1,0 +1,38 @@
+--- before/public/app.js
++++ after/public/app.js
+@@ -105,10 +105,12 @@
+   const provenance = candidate.manualFields.length ? `Manually changed: ${candidate.manualFields.join(', ')}` : 'Unchanged model suggestion';
+   const buttons = node('div');
+   const save = button('Save edits', 'secondary');
++  save.dataset.action = 'save';
+   save.addEventListener('click', async () => {
+     await mutate(`/api/candidates/${candidate.id}`, 'PUT', { action: action.input.value, owner: owner.input.value || null, dueDate: due.input.value || null, sourceVersion: state.notes.version, candidateRevision: candidate.revision }, 'Edits saved. Approval is cleared whenever a candidate changes.');
+   });
+   const approve = button(candidate.approved ? 'Clear approval' : 'Approve', candidate.approved ? 'danger' : 'primary');
++  approve.dataset.action = 'approve';
+   approve.addEventListener('click', () => !blockUnsaved() && mutate(`/api/candidates/${candidate.id}/approval`, 'PUT', { approved: !candidate.approved, sourceVersion: state.notes.version, candidateRevision: candidate.revision }, candidate.approved ? 'Approval cleared.' : 'Candidate approved for export.'));
+   buttons.append(save, approve); controls.append(node('span', 'provenance', provenance), buttons); card.append(controls);
+   return card;
+@@ -154,10 +156,21 @@
+ }
+ 
+ async function mutate(url, method, body, success) {
++  const focused = document.activeElement;
++  const cardId = focused.closest('.candidate-card')?.dataset.id;
++  const controlAction = focused.dataset.action;
+   setBusy(true);
+   try { state = await api(url, { method, body }); render(); showStatus(success); }
+   catch (error) { showStatus(error.message, true); }
+-  finally { setBusy(false); }
++  finally {
++    setBusy(false);
++    // Rebuilt controls need focus restored; do not steal it if the user moved.
++    if (cardId && controlAction &&
++        (document.activeElement === document.body || document.activeElement === focused)) {
++      const card = [...elements.list.children].find(item => item.dataset.id === cardId);
++      card?.querySelector(`[data-action="${controlAction}"]`)?.focus();
++    }
++  }
+ }
+ 
+ async function exportFile(format) {

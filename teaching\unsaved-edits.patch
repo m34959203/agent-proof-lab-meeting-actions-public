@@ -1,0 +1,78 @@
+--- a/public/app.js
++++ b/public/app.js
+@@ -5,6 +5,7 @@
+ };
+ let state;
+ let busy = false;
++const dirtyCandidates = new Set();
+ 
+ elements.notes.addEventListener('input', () => { updateCount(); renderTop(); });
+ elements.save.addEventListener('click', saveNotes);
+@@ -37,6 +38,7 @@
+ 
+ function render() {
+   renderTop();
++  dirtyCandidates.clear();
+   elements.list.replaceChildren();
+   state.candidates.forEach((candidate, index) => elements.list.append(candidateCard(candidate, index)));
+   const approved = state.candidates.filter((candidate) => candidate.approved).length;
+@@ -70,6 +72,7 @@
+   const chip = head.querySelector('.state-chip');
+   const trackEdit = () => {
+     const changed = action.input.value !== candidate.action || (owner.input.value || null) !== candidate.owner || (due.input.value || null) !== candidate.dueDate;
++    if (changed) dirtyCandidates.add(candidate.id); else dirtyCandidates.delete(candidate.id);
+     chip.textContent = changed ? 'Unsaved edit' : candidate.approved ? 'Approved' : 'Needs review';
+     chip.classList.toggle('approved', !changed && candidate.approved);
+   };
+@@ -86,10 +89,11 @@
+   const buttons = node('div');
+   const save = button('Save edits', 'secondary');
+   save.addEventListener('click', async () => {
++    if ([...dirtyCandidates].some(id => id !== candidate.id) || hasUnsavedNotes()) { showStatus('Save other unsaved edits first.', true); return; }
+     await mutate(`/api/candidates/${candidate.id}`, 'PUT', { action: action.input.value, owner: owner.input.value || null, dueDate: due.input.value || null, sourceVersion: state.notes.version, candidateRevision: candidate.revision }, 'Edits saved. Approval is cleared whenever a candidate changes.');
+   });
+   const approve = button(candidate.approved ? 'Clear approval' : 'Approve', candidate.approved ? 'danger' : 'primary');
+-  approve.addEventListener('click', () => mutate(`/api/candidates/${candidate.id}/approval`, 'PUT', { approved: !candidate.approved, sourceVersion: state.notes.version, candidateRevision: candidate.revision }, candidate.approved ? 'Approval cleared.' : 'Candidate approved for export.'));
++  approve.addEventListener('click', () => !blockUnsaved() && mutate(`/api/candidates/${candidate.id}/approval`, 'PUT', { approved: !candidate.approved, sourceVersion: state.notes.version, candidateRevision: candidate.revision }, candidate.approved ? 'Approval cleared.' : 'Candidate approved for export.'));
+   buttons.append(save, approve); controls.append(node('span', 'provenance', provenance), buttons); card.append(controls);
+   return card;
+ }
+@@ -114,10 +118,12 @@
+ }
+ 
+ async function saveNotes() {
++  if (dirtyCandidates.size) { showStatus('Save candidate edits before changing the source.', true); return; }
+   await mutate('/api/notes', 'PUT', { text: elements.notes.value, expectedVersion: state.notes.version }, 'New source version saved. Earlier candidates and approvals were invalidated.');
+ }
+ 
+ async function extract() {
++  if (blockUnsaved()) return;
+   let replaceConfirmed = false;
+   if (state.candidates.length) {
+     replaceConfirmed = window.confirm('Replace all current candidates? This discards their edits and approvals. Your saved notes remain unchanged.');
+@@ -139,6 +145,7 @@
+ }
+ 
+ async function exportFile(format) {
++  if (blockUnsaved()) return;
+   try {
+     const response = await fetch(`/api/export.${format}`);
+     if (!response.ok) throw await responseError(response);
+@@ -157,7 +164,16 @@
+   return response.json();
+ }
+ async function responseError(response) { const value = await response.json().catch(() => null); return new Error(value?.error?.message || `Request failed (${response.status}).`); }
+-function setBusy(value) { busy = value; renderTop(); }
++function blockUnsaved() {
++  if (!dirtyCandidates.size && !hasUnsavedNotes()) return false;
++  showStatus('Save unsaved edits before approving, regenerating, or exporting.', true);
++  return true;
++}
++function setBusy(value) {
++  busy = value;
++  document.querySelectorAll('#notes-input, .candidate-card input, .candidate-card button, .export').forEach(control => { control.disabled = value; });
++  renderTop();
++}
+ function showStatus(message, error = false) { elements.status.hidden = false; elements.status.textContent = message; elements.status.classList.toggle('error', error); }
+ function node(tag, className = '', text = '') { const item = document.createElement(tag); if (className) item.className = className; if (text) item.textContent = text; return item; }
+ function button(text, style) { const item = node('button', `button ${style}`, text); item.type = 'button'; return item; }

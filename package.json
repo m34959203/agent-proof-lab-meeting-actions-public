@@ -1,0 +1,14 @@
+{
+  "name": "meeting-action-board",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local evidence-first meeting action review board",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

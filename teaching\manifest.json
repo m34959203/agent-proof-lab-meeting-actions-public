@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "projectId": "project-005-meeting-actions",
+  "frozenAtUtc": "2026-10-10T04:02:52.156544+00:00",
+  "source": "[internal research source omitted from public adaptation]",
+  "inputs": [
+    {
+      "path": "[private evidence location omitted]/case-selection.json",
+      "sha256": "e87219236d504c0a2c7e5005636fa3cfcd4ff144427d2ba5733fd6c7b381526f"
+    },
+    {
+      "path": "[private evidence location omitted]/environment.json",
+      "sha256": "6065b7cad827997ea058c2715668edc9346d8fc2a98ab95740bcf293918280c1"
+    },
+    {
+      "path": "[private evidence location omitted]/BRIEF.md",
+      "sha256": "25397fb1b2762ed97fcb104a0ccf7f3f6166827605b149f2b25a629407642d37"
+    },
+    {
+      "path": "[private evidence location omitted]/ACCEPTANCE.md",
+      "sha256": "6ce49d719ea843bf3b5a1e2d2c8fda9add95c32cf0205f1239b6f8468f0d6c2c"
+    },
+    {
+      "path": "[private evidence location omitted]/synthetic-notes.txt",
+      "sha256": "ffe4a3ee29900c6710249a463e51754a9493047ef46a963c3b4f6df3e736bef0"
+    },
+    {
+      "path": "[private evidence location omitted]/baseline-inventory.json",
+      "sha256": "13ba68a055e552ffaaef5af417db690e854089ed65384cf94966c4878c77f465"
+    }
+  ],
+  "runtime": "Node v22.22.1, built-ins, browser JS; no runtime dependencies planned",
+  "codingTool": "Existing Codex CLI 0.153.4; record actual model at execution, no Claude retry",
+  "model": {
+    "name": "gemma4:26b-a4b-it-qat",
+    "expectedDigest": "2dd70431afed94dd3688d790443768c1487ed086b57147ff083851116ae4c4e4",
+    "url": "http://127.0.0.1:11434",
+    "timeoutSeconds": 120,
+    "maxOutputTokens": 1800,
+    "concurrency": 1,
+    "downloads": false
+  },
+  "capture": {
+    "requiredBeforeFirstPrompt": true,
+    "requiredBeforeImplementation": true,
+    "durationSeconds": [
+      30,
+      45
+    ],
+    "mode": "Live browser Bash PTY, automated input, not native desktop or Windows Terminal"
+  },
+  "rights": "Own implementation/data only; retain existing tooling notices, no upstream copying",
+  "budget": {
+    "newSpend": false,
+    "actualOperatingCost": "Not separately metered"
+  },
+  "estimate": "Up to 10 working days; reassess after first live-model milestone, no runtime padding",
+  "hypotheses": [
+    "H1 concrete-benefit packaging",
+    "H2 genuine repeatable causal build"
+  ],
+  "releaseApproved": false,
+  "independentAcceptance": false
+}

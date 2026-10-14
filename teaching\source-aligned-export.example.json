@@ -1,0 +1,27 @@
+{
+  "exportedAt": "2026-10-13T04:26:39.983Z",
+  "sourceVersion": 1,
+  "tasks": [
+    {
+      "id": "7b23974a-121c-43d6-9b0f-cb9421ac5510",
+      "action": "Verify the staging rollback steps",
+      "owner": "Jordan",
+      "dueDate": null,
+      "evidence": {
+        "lineId": "L0004",
+        "quote": "Jordan agreed to verify the staging rollback steps; no deadline was set.",
+        "ownerQuote": null,
+        "dueDateQuote": null
+      },
+      "provenance": {
+        "sourceVersion": 1,
+        "modelSuggested": true,
+        "manuallyChangedFields": [
+          "action",
+          "owner"
+        ],
+        "approvedAt": "2026-10-13T04:26:34.273Z"
+      }
+    }
+  ]
+}
